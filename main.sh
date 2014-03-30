@@ -6,10 +6,20 @@ clean_up_on_exit() {
     [ -f "$TMP_FILE" ] && rm "$TMP_FILE"
 }
 
-trap 'clean_up_on_exit' EXIT
+main() {
+    trap 'clean_up_on_exit' EXIT
 
-while true; do
-    TMP_FILE=$(mktemp "${TMPDIR-/tmp}/acfun.XXXXXXXXX")
-    curl -A "$USER_AGENT" -o "$TMP_FILE" 'http://wiki.acfun.tv/keyheaders/cover.php?.jpg'
-    mv "$TMP_FILE" "$(md5sum "$TMP_FILE" | grep -o '^[[:xdigit:]]\{32\}').jpg"
-done
+    local md5sum_hash
+    while true; do
+        TMP_FILE="$(mktemp "${TMPDIR-/tmp}/acfun.XXXXXXXXX")"
+        curl -A "$USER_AGENT" -o "$TMP_FILE" -e 'http://h.acfun.tv/' 'http://wiki.acfun.tv/keyheaders/cover.php'
+        md5sum_hash="$(md5sum "$TMP_FILE" | grep -o '^[[:xdigit:]]\{32\}')"
+        if [ -f "${md5sum_hash}.jpg" ]; then
+            rm "$TMP_FILE"
+        else
+            mv "$TMP_FILE" "${md5sum_hash}.jpg"
+        fi
+    done
+}
+
+main "$@"
