@@ -8,7 +8,7 @@ clean_up_on_exit() {
 }
 
 get_file_extension_for() {
-    local file_sign="$(od -An -tx1 -N2 -v "$1" | awk '{printf "%s%s\n",$1,$2;}')"
+    local file_sign="$(od -An -tx1 -N2 -v "$1" | tr -d ' ')"
     case "$file_sign" in
         'ffd8')
             printf '%s\n' 'jpg'
