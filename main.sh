@@ -8,16 +8,14 @@ clean_up_on_exit() {
 }
 
 get_file_extension_for() {
-    local file_sign="$(od -An -tx1 -N2 -v "$1" | tr -d ' ')"
-    case "$file_sign" in
-        'ffd8')
+    local file_extension="$(file --mime-type --brief "$1" | cut -d '/' -f 2)"
+    case "$file_extension" in
+        'jpeg')
             printf '%s\n' 'jpg'
         ;;
-        '4749')
-            printf '%s\n' 'gif'
-        ;;
         *)
-            printf '%s\n' 'err'
+            printf '%s\n' "$file_extension"
+        ;;
     esac
 }
 
